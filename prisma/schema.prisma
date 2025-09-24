@@ -1,0 +1,96 @@
+
+// RN Fintech - Prisma Schema (Draft)
+// Database: PostgreSQL
+// ORM: Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  phone         String   @unique
+  passwordHash  String
+  role          Role
+  loans         Loan[]
+  merchantLoans Loan[]   @relation("MerchantLoans")
+  bankerLoans   Loan[]   @relation("BankerLoans")
+  kycDocs       KYCDocument[]
+  notifications Notification[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Loan {
+  id          String   @id @default(uuid())
+  type        String
+  amount      Float
+  status      LoanStatus @default(PENDING)
+  applicant   User     @relation(fields: [applicantId], references: [id])
+  applicantId String
+  merchant    User?    @relation("MerchantLoans", fields: [merchantId], references: [id])
+  merchantId  String?
+  banker      User?    @relation("BankerLoans", fields: [bankerId], references: [id])
+  bankerId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  auditLogs   AuditLog[]
+}
+
+model KYCDocument {
+  id        String    @id @default(uuid())
+  type      String
+  url       String?
+  status    KYCStatus @default(PENDING)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  verifiedBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  type      String
+  message   String
+  status    String   @default("unread")
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  loan      Loan     @relation(fields: [loanId], references: [id])
+  loanId    String
+  action    String
+  actorId   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  CUSTOMER
+  MERCHANT
+  BANKER
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DISBURSED
+}
+
+enum KYCStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  UPLOADING
+}

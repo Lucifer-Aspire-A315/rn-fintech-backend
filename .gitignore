@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Prisma generated files
+prisma/.env
+prisma/migrations/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Coverage reports
+coverage/
+
+# Build output
+dist/
+build/
+
+# Misc
+*.local
+*.sublime-workspace
+*.sublime-project
+
+# Ignore combined and error logs in src/logs
+src/logs/
